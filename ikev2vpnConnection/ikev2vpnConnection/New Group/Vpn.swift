@@ -15,7 +15,6 @@ protocol VpnDelegate: class {
 class Vpn {
     
     let vpnManager = NEVPNManager.shared();
-    let vpnData = LoginData()
     weak var vpnDelegate: VpnDelegate?
     
     //Loading VPN Configuration
@@ -29,25 +28,28 @@ class Vpn {
         let p = NEVPNProtocolIKEv2()
         p.authenticationMethod = NEVPNIKEAuthenticationMethod.none
         p.useExtendedAuthentication = true
-        p.serverAddress = self.vpnData.data[0].serverAddress //replace it with your server address
-        p.remoteIdentifier = self.vpnData.data[0].serverAddress //replace it with your remote id
+        p.serverAddress = ip
+        p.remoteIdentifier = ip //replace it with your remote id
         p.disconnectOnSleep = false
         
-        let cert = self.vpnData.data[0].certificate  //Assign your certificate string to cert
+        let cert = certi  //Assign your certificate string to cert
         let tmpData = Data(base64Encoded: cert)!
         let certificate = SecCertificateCreateWithData(nil, tmpData as CFData)!
         let certificateData = SecCertificateCopyData(certificate) as Data
         
         p.identityData = certificateData
         let kcs = KeychainService()
-        kcs.save(key: "VPN_PASSWORD", value: "your_password") //Add your password
+        kcs.save(key: "VPN_PASSWORD", value: pass) //Add your password
         p.username = "user" //add your user name
         p.passwordReference = kcs.load(key: "VPN_PASSWORD")
         self.vpnManager.protocolConfiguration = p
         self.vpnManager.localizedDescription = "user"
         self.vpnManager.isEnabled = true
+        self.vpnManager.isOnDemandEnabled = connectOnDemand
+        
         self.vpnManager.saveToPreferences(completionHandler: self.vpnSaveHandler)
         }
+        
     }
     
     

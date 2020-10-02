@@ -8,9 +8,22 @@
 
 import UIKit
 import NetworkExtension
+
+var ip : String = ""
+var pass : String = ""
+var certi : String = ""
+var connectOnDemand : Bool = false
+var user : String = ""
+
 class ViewController: UIViewController {
-    @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var connectButton: UIButton!
+    @IBOutlet weak var connectOn: UISwitch!
+    @IBOutlet weak var text1: UITextField!
+    @IBOutlet weak var text2: UITextField!
+    @IBOutlet weak var text3: UITextField!
+    @IBOutlet weak var text4: UITextField!
+    
+    
     //Assigning vpn class
      let vpnInstance = Vpn()
     override func viewDidLoad() {
@@ -18,32 +31,39 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
          vpnInstance.vpnDelegate = self
         
+        if connectOn.isOn {
+            connectOnDemand = true
+        } else {
+            connectOnDemand = false
+        }
     }
+    
     //Will act as connect/Disconnect
     @IBAction func connectTrig(_ sender: Any) {
+        view.endEditing(true)
         vpnInstance.connectVPN()
     }
     
     //Updating connection status
     var status: Status? {
         didSet {
-            statusLabel.text = status?.description
-            if status == Status.connecting {
-                statusLabel.text = "Connecting"
-            } else if status == Status.disconnecting {
-                statusLabel.text = "Disconnecting"
-            } else if status == Status.connected {
-                statusLabel.text = "Connected"
-            } else if status == Status.disconnected {
-                statusLabel.text = "Disconnected"
-            } else if status == Status.errorConnecting {
-                statusLabel.text = "Error connecting"
-            }
-            
+            connectButton.setTitle(status?.description, for: .normal)
+//            statusLabel.text = status?.description
+//            if status == Status.connecting {
+//                statusLabel.text = "Connecting"
+//            } else if status == Status.disconnecting {
+//                statusLabel.text = "Disconnecting"
+//            } else if status == Status.connected {
+//                statusLabel.text = "Connected"
+//            } else if status == Status.disconnected {
+//                statusLabel.text = "Disconnected"
+//            } else if status == Status.errorConnecting {
+//                statusLabel.text = "Error connecting"
+//            }
         }
     }
         
-        @objc private func checkNEStatus(status: NEVPNStatus) {
+    @objc private func checkNEStatus(status: NEVPNStatus) {
         switch status {
         case .invalid:
         self.status = Status.errorConnecting
@@ -59,10 +79,33 @@ class ViewController: UIViewController {
         self.status = Status.disconnecting
         default:
             print("Unexpected Error")
+            }
         }
-        }
-        
+ 
+    @IBAction func ipAddress(_ sender: Any) {
+        ip = text1.text!
     }
+    
+    @IBAction func username(_ sender: Any) {
+        user = text2.text!
+    }
+    
+    @IBAction func password(_ sender: Any) {
+        pass = text3.text!
+    }
+    
+    @IBAction func certificate(_ sender: Any) {
+        certi = text4.text!
+    }
+    
+    @IBAction func cod(_ sender: Any) {
+      connectOnDemand = !connectOnDemand
+    }
+    
+    
+}
+
+
     
     
 
